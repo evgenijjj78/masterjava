@@ -1,8 +1,10 @@
 package ru.javaops.masterjava.matrix;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * gkislin
@@ -14,7 +16,43 @@ public class MatrixUtil {
     public static int[][] concurrentMultiply(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
         final int matrixSize = matrixA.length;
         final int[][] matrixC = new int[matrixSize][matrixSize];
-
+        class MyTask implements Runnable {
+            final int from;
+            final int to;
+            MyTask(int from, int to) {
+                this.from = from;
+                this.to = to;
+            }
+            @Override
+            public void run() {
+                for (int i = from; i < to; i++) {
+                    int[] column = new int[matrixSize];
+                    for (int l = 0; l < matrixSize; l++) {
+                        column[l] = matrixB[l][i];
+                    }
+                    for (int j = 0; j < matrixSize; j++) {
+                        int[] row = matrixA[j];
+                        int sum = 0;
+                        for (int k = 0; k < matrixSize; k++) {
+                            sum += row[k] * column[k];
+                        }
+                        matrixC[j][i] = sum;
+                    }
+                }
+            }
+        }
+        int tasksNumber = 7;
+        ArrayList<Future<?>> futures = new ArrayList<>();
+        for (int i = 0; i < tasksNumber; i++) {
+            futures.add(executor.submit(new MyTask(i * matrixSize / tasksNumber, (i + 1) * matrixSize / tasksNumber)));
+        }
+        boolean check = false;
+        while (!check) {
+            for (Future<?> f : futures) {
+                check = f.isDone();
+                if (!check) break;
+            }
+        }
         return matrixC;
     }
 
