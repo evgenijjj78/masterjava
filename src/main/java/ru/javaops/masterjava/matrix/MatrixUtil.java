@@ -26,18 +26,7 @@ public class MatrixUtil {
             @Override
             public void run() {
                 for (int i = from; i < to; i++) {
-                    int[] column = new int[matrixSize];
-                    for (int l = 0; l < matrixSize; l++) {
-                        column[l] = matrixB[l][i];
-                    }
-                    for (int j = 0; j < matrixSize; j++) {
-                        int[] row = matrixA[j];
-                        int sum = 0;
-                        for (int k = 0; k < matrixSize; k++) {
-                            sum += row[k] * column[k];
-                        }
-                        matrixC[j][i] = sum;
-                    }
+                    matrixMultiplication(matrixA, matrixB, matrixSize, matrixC, i);
                 }
             }
         }
@@ -62,15 +51,24 @@ public class MatrixUtil {
         final int[][] matrixC = new int[matrixSize][matrixSize];
 
         for (int i = 0; i < matrixSize; i++) {
-            for (int j = 0; j < matrixSize; j++) {
-                int sum = 0;
-                for (int k = 0; k < matrixSize; k++) {
-                    sum += matrixA[i][k] * matrixB[k][j];
-                }
-                matrixC[i][j] = sum;
-            }
+            matrixMultiplication(matrixA, matrixB, matrixSize, matrixC, i);
         }
         return matrixC;
+    }
+
+    private static void matrixMultiplication(int[][] matrixA, int[][] matrixB, int matrixSize, int[][] matrixC, int i) {
+        int[] column = new int[matrixSize];
+        for (int l = 0; l < matrixSize; l++) {
+            column[l] = matrixB[l][i];
+        }
+        for (int j = 0; j < matrixSize; j++) {
+            int[] row = matrixA[j];
+            int sum = 0;
+            for (int k = 0; k < matrixSize; k++) {
+                sum += row[k] * column[k];
+            }
+            matrixC[j][i] = sum;
+        }
     }
 
     public static int[][] create(int size) {
